@@ -1,7 +1,7 @@
 name: pata
-description: "Pata — gerenciador de cuidados com pets (Trabalho 1, Desenvolvimento Móvel)."
+description: "Pata — app de cadastro e adoção de cães e gatos (Trabalho 1 e 2, Desenvolvimento Móvel)."
 publish_to: 'none'
-version: 0.1.0
+version: 0.2.0
 
 environment:
   sdk: '>=3.4.0 <4.0.0'
@@ -14,6 +14,8 @@ dependencies:
   provider: ^6.1.2
   intl: ^0.19.0
   uuid: ^4.4.2
+  firebase_core: ^4.4.0
+  firebase_auth: ^6.1.4
 
 dev_dependencies:
   flutter_test:
