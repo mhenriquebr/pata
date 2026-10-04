@@ -3,13 +3,13 @@ import 'package:pata/features/pets/domain/entities/pet_sex.dart';
 import 'package:pata/features/pets/domain/entities/pet_species.dart';
 import 'package:pata/features/pets/domain/entities/vaccination_status.dart';
 
-/// Entidade principal do aplicativo: um pet cadastrado pelo tutor.
+/// Entidade principal do aplicativo: um pet cadastrado por um
+/// responsável do órgão "Pata".
 ///
 /// É uma classe imutável (todos os campos `final`); qualquer alteração
-/// deve passar por [copyWith], evitando estados inconsistentes espalhados
-/// pela aplicação. As regras de validação de negócio (nome obrigatório,
-/// peso positivo, data de nascimento não pode ser no futuro) ficam
-/// encapsuladas aqui no domínio — nunca na camada de UI.
+/// deve passar por [copyWith]. As regras de validação de negócio (nome
+/// obrigatório, peso positivo, data de nascimento não pode ser no
+/// futuro) ficam encapsuladas aqui no domínio — nunca na camada de UI.
 class Pet implements Identifiable {
   Pet({
     required this.id,
@@ -44,7 +44,6 @@ class Pet implements Identifiable {
   final VaccinationStatus vaccinationStatus;
   final String notes;
 
-  /// Idade aproximada em anos completos, calculada a partir de [birthDate].
   int get ageInYears {
     final DateTime now = DateTime.now();
     int years = now.year - birthDate.year;

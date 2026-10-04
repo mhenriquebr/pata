@@ -4,9 +4,6 @@ import 'package:pata/features/pets/presentation/widgets/sex_icon.dart';
 import 'package:pata/features/pets/presentation/widgets/species_icon.dart';
 
 /// Card usado em [PetListScreen] para exibir um resumo de cada pet.
-///
-/// Widget puramente de apresentação: recebe o [pet] já pronto e um
-/// callback [onTap] — nenhuma lógica de negócio ou acesso a dados aqui.
 class PetCard extends StatelessWidget {
   const PetCard({
     required this.pet,

@@ -6,11 +6,11 @@ import 'package:pata/features/pets/domain/repositories/pet_repository.dart';
 import 'package:uuid/uuid.dart';
 
 /// Implementação concreta de [PetRepository] que guarda os dados apenas
-/// em memória (lista local), conforme permitido pelo Trabalho 1.
+/// em memória (lista local), conforme permitido pelos Trabalhos 1 e 2.
 ///
 /// TODO(T3 - Cloud Firestore): substituir/complementar esta implementação
-/// por uma que persista os dados no Cloud Firestore, vinculados ao usuário
-/// autenticado (introduzido no Trabalho 2 com Firebase Authentication).
+/// por uma que persista os dados no Cloud Firestore, vinculados ao
+/// responsável autenticado.
 class InMemoryPetRepository implements PetRepository {
   InMemoryPetRepository() {
     _pets.addAll(_seedData());
@@ -20,26 +20,18 @@ class InMemoryPetRepository implements PetRepository {
   final Uuid _uuid = const Uuid();
 
   @override
-  Future<List<Pet>> getAll() async {
-    // Retorna uma cópia para impedir que quem consome a lista altere
-    // o estado interno do repositório diretamente.
-    return List<Pet>.unmodifiable(_pets);
-  }
+  Future<List<Pet>> getAll() async => List<Pet>.unmodifiable(_pets);
 
   @override
   Future<Pet?> getById(String id) async {
     for (final Pet pet in _pets) {
-      if (pet.id == id) {
-        return pet;
-      }
+      if (pet.id == id) return pet;
     }
     return null;
   }
 
   @override
-  Future<void> add(Pet pet) async {
-    _pets.add(pet);
-  }
+  Future<void> add(Pet pet) async => _pets.add(pet);
 
   @override
   Future<void> update(Pet pet) async {

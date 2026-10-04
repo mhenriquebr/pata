@@ -1,9 +1,6 @@
 import 'package:flutter/material.dart';
 
 /// Estado vazio genérico e reutilizável (ex.: lista sem itens).
-///
-/// StatelessWidget puro, sem qualquer lógica de negócio — apenas
-/// recebe dados prontos e os exibe.
 class EmptyState extends StatelessWidget {
   const EmptyState({
     required this.icon,

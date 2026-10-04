@@ -5,7 +5,6 @@ enum PetSpecies {
   dog,
   cat;
 
-  /// Rótulo amigável exibido ao usuário (pt-BR).
   String get label {
     switch (this) {
       case PetSpecies.dog:

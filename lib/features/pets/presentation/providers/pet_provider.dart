@@ -8,10 +8,8 @@ import 'package:uuid/uuid.dart';
 
 /// Estado e regras de apresentação da feature "pets".
 ///
-/// Esta classe é a única responsável por conversar com o [PetRepository]
-/// (camada de domínio/data) e expor um estado pronto para a UI consumir.
-/// Nenhum widget deve acessar o repositório diretamente — isso mantém a
-/// lógica de negócio fora da camada de apresentação, conforme exigido.
+/// Único responsável por conversar com o [PetRepository]. Nenhum widget
+/// acessa o repositório diretamente.
 class PetProvider extends ChangeNotifier {
   PetProvider(this._repository);
 
@@ -26,7 +24,6 @@ class PetProvider extends ChangeNotifier {
   bool get isLoading => _isLoading;
   String? get errorMessage => _errorMessage;
 
-  /// Carrega (ou recarrega) a lista de pets a partir do repositório.
   Future<void> loadPets() async {
     _isLoading = true;
     _errorMessage = null;
@@ -51,11 +48,6 @@ class PetProvider extends ChangeNotifier {
     }
   }
 
-  /// Cria e persiste um novo pet. Retorna `true` em caso de sucesso.
-  ///
-  /// As validações de negócio (nome obrigatório, peso positivo, etc.)
-  /// acontecem dentro do construtor de [Pet] — aqui apenas capturamos
-  /// o eventual [ArgumentError] e convertemos em mensagem para a UI.
   Future<bool> addPet({
     required String name,
     required PetSpecies species,

@@ -1,14 +1,13 @@
 /// Situação vacinal do pet.
 ///
-/// Nesta etapa (Trabalho 1) é apenas um dado informado manualmente pelo
-/// tutor no cadastro (mockado). Nas próximas entregas isso pode evoluir
-/// para um histórico de vacinas por data, vinculado ao Cloud Firestore.
+/// Nesta etapa é apenas um dado informado manualmente pelo tutor no
+/// cadastro (mockado). No Trabalho 3, com Cloud Firestore, isso pode
+/// evoluir para um histórico de vacinas por data.
 enum VaccinationStatus {
   upToDate,
   notStarted,
   partiallyStarted;
 
-  /// Rótulo amigável exibido ao usuário (pt-BR).
   String get label {
     switch (this) {
       case VaccinationStatus.upToDate:

@@ -2,11 +2,10 @@ import 'package:flutter/material.dart';
 
 /// Centraliza a definição visual do app.
 ///
-/// Mantido como classe utilitária (construtores/instâncias privados,
-/// apenas membros estáticos) para que o tema seja configurado em um
-/// único lugar e reutilizado em todas as telas.
+/// Mantido como classe utilitária (só membros estáticos) para que o tema
+/// seja configurado em um único lugar e reutilizado em todas as telas.
 abstract final class AppTheme {
-  static const Color _seedColor = Color(0xFF8D5B3D); // marrom "pata"
+  static const Color _seedColor = Color(0xFF8D5B3D); // marrom "Pata"
 
   static ThemeData get light {
     final ColorScheme colorScheme = ColorScheme.fromSeed(

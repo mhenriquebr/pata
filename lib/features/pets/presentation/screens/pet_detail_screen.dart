@@ -9,11 +9,7 @@ import 'package:pata/features/pets/presentation/widgets/sex_icon.dart';
 import 'package:pata/features/pets/presentation/widgets/species_icon.dart';
 import 'package:provider/provider.dart';
 
-/// Tela de detalhes de um pet específico, identificado por [petId]
-/// (parâmetro de rota — ver `app/router.dart`).
-///
-/// StatelessWidget: busca o pet já carregado em [PetProvider] e apenas
-/// exibe seus dados. A ação de excluir delega toda a lógica ao provider.
+/// Tela de detalhes de um pet específico, identificado por [petId].
 class PetDetailScreen extends StatelessWidget {
   const PetDetailScreen({required this.petId, super.key});
 
@@ -138,16 +134,12 @@ class PetDetailScreen extends StatelessWidget {
       },
     );
 
-    if (confirmed != true || !context.mounted) {
-      return;
-    }
+    if (confirmed != true || !context.mounted) return;
 
     final PetProvider provider = context.read<PetProvider>();
     final bool success = await provider.deletePet(pet.id);
 
-    if (!context.mounted) {
-      return;
-    }
+    if (!context.mounted) return;
 
     if (success) {
       AppSnackbar.showSuccess(context, '"${pet.name}" foi removido.');
@@ -161,7 +153,6 @@ class PetDetailScreen extends StatelessWidget {
   }
 }
 
-/// Linha de detalhe (ícone + rótulo + valor) reutilizada nesta tela.
 class _DetailTile extends StatelessWidget {
   const _DetailTile({
     required this.icon,

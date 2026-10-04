@@ -8,14 +8,7 @@ import 'package:pata/features/pets/domain/entities/vaccination_status.dart';
 import 'package:pata/features/pets/presentation/providers/pet_provider.dart';
 import 'package:provider/provider.dart';
 
-/// Tela de cadastro de um novo pet (Requisito 7 do Trabalho 1).
-///
-/// É um [StatefulWidget] porque precisa manter o estado local dos
-/// campos do formulário (controllers, espécie/sexo/vacinação
-/// selecionados, data de nascimento e flag de envio em andamento). Toda
-/// a validação de formato acontece aqui (camada de UI); a validação de
-/// regra de negócio (ex.: peso > 0) acontece no domínio, dentro da
-/// entidade [Pet].
+/// Tela de cadastro de um novo pet.
 class PetFormScreen extends StatefulWidget {
   const PetFormScreen({super.key});
 
@@ -65,16 +58,10 @@ class _PetFormScreenState extends State<PetFormScreen> {
     final bool isFormValid = _formKey.currentState?.validate() ?? false;
 
     if (_birthDate == null) {
-      AppSnackbar.showError(
-        context,
-        'Selecione a data de nascimento do pet.',
-      );
+      AppSnackbar.showError(context, 'Selecione a data de nascimento do pet.');
       return;
     }
-
-    if (!isFormValid) {
-      return;
-    }
+    if (!isFormValid) return;
 
     setState(() => _isSubmitting = true);
 
@@ -94,10 +81,7 @@ class _PetFormScreenState extends State<PetFormScreen> {
       notes: _notesController.text,
     );
 
-    if (!mounted) {
-      return;
-    }
-
+    if (!mounted) return;
     setState(() => _isSubmitting = false);
 
     if (success) {
@@ -153,9 +137,7 @@ class _PetFormScreenState extends State<PetFormScreen> {
                   )
                   .toList(),
               onChanged: (PetSpecies? value) {
-                if (value != null) {
-                  setState(() => _species = value);
-                }
+                if (value != null) setState(() => _species = value);
               },
             ),
             const SizedBox(height: 16),
@@ -226,12 +208,8 @@ class _PetFormScreenState extends State<PetFormScreen> {
                 }
                 final double? parsed =
                     double.tryParse(value.trim().replaceAll(',', '.'));
-                if (parsed == null) {
-                  return 'Informe um número válido.';
-                }
-                if (parsed <= 0) {
-                  return 'O peso deve ser maior que zero.';
-                }
+                if (parsed == null) return 'Informe um número válido.';
+                if (parsed <= 0) return 'O peso deve ser maior que zero.';
                 return null;
               },
             ),
@@ -252,9 +230,7 @@ class _PetFormScreenState extends State<PetFormScreen> {
                   )
                   .toList(),
               onChanged: (VaccinationStatus? value) {
-                if (value != null) {
-                  setState(() => _vaccinationStatus = value);
-                }
+                if (value != null) setState(() => _vaccinationStatus = value);
               },
             ),
             const SizedBox(height: 16),

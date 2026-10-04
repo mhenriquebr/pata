@@ -4,12 +4,11 @@ import 'package:pata/features/onboarding/presentation/models/onboarding_page_dat
 
 /// Tela de boas-vindas exibida na abertura do app.
 ///
-/// Reúne o que, em outras referências, costuma vir em 3 telas separadas
-/// dentro de uma única rota, usando um [PageView] deslizável — assim o
-/// fluxo de navegação do app continua enxuto (a tela em si é só uma).
-///
-/// É um [StatefulWidget] porque precisa acompanhar qual página está
-/// visível (para os indicadores e para trocar "Próximo" por "Começar").
+/// Reúne 3 "telas" de introdução em uma única rota, usando um
+/// [PageView] deslizável — assim o fluxo de navegação do app continua
+/// enxuto. É um [StatefulWidget] porque precisa acompanhar qual página
+/// está visível (para os indicadores e para trocar "Próximo" por
+/// "Começar").
 class OnboardingScreen extends StatefulWidget {
   const OnboardingScreen({super.key});
 
@@ -17,19 +16,22 @@ class OnboardingScreen extends StatefulWidget {
     OnboardingPageData(
       icon: Icons.pets,
       title: 'Bem-vindo ao Pata!',
-      description: 'Encontre um novo amigo e dê a ele um lar cheio de amor.',
+      description:
+          'Cadastre e acompanhe cães e gatos disponíveis para adoção: raça, '
+          'idade, peso e muito mais.',
     ),
     OnboardingPageData(
       icon: Icons.favorite_rounded,
-      title: 'Encontre seu novo amigo',
-      description:
-          'Descubra pets disponíveis para adoção e encontre o companheiro ideal para você.',
+      title: 'Cuide de cada detalhe',
+      description: 'Registre a situação de vacinação e observações importantes '
+          'sobre a saúde e a rotina de cada animal.',
     ),
     OnboardingPageData(
       icon: Icons.checklist_rounded,
-      title: 'Adotar transforma vidas',
+      title: 'Tudo na palma da mão',
       description:
-          'Dê uma nova chance a um pet e faça parte de uma história de amor e cuidado.',
+          'Consulte rapidamente as informações de cada animal sempre que '
+          'precisar, direto do seu celular.',
     ),
   ];
 
@@ -56,11 +58,9 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     );
   }
 
-  /// Encerra o onboarding e vai para a listagem de pets.
-  ///
-  /// Usa `context.go` (em vez de `context.push`) para que a tela de
-  /// onboarding saia da pilha de navegação — o botão "voltar" do
-  /// dispositivo não deve trazer o usuário de volta para cá.
+  /// Encerra o onboarding. Usa `context.go` (não `push`) para que esta
+  /// tela saia da pilha — o app decide, via redirect do go_router, se
+  /// quem chega deve ver a área interna ou o login.
   void _finishOnboarding() => context.go('/');
 
   @override
