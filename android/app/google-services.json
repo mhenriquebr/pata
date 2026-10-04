@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "878966573436",
+    "project_id": "pata-aa318",
+    "storage_bucket": "pata-aa318.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:878966573436:android:be862e41a719464020bcf9",
+        "android_client_info": {
+          "package_name": "com.example.projeto_pata"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBHCRXOAqMpVVDGQ19IrCT-z54watsyUjY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
