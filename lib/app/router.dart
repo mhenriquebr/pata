@@ -1,22 +1,67 @@
 import 'package:go_router/go_router.dart';
+import 'package:pata/features/auth/presentation/providers/auth_provider.dart';
+import 'package:pata/features/auth/presentation/screens/forgot_password_screen.dart';
+import 'package:pata/features/auth/presentation/screens/login_screen.dart';
+import 'package:pata/features/auth/presentation/screens/register_screen.dart';
 import 'package:pata/features/onboarding/presentation/screens/onboarding_screen.dart';
 import 'package:pata/features/pets/presentation/screens/pet_detail_screen.dart';
 import 'package:pata/features/pets/presentation/screens/pet_form_screen.dart';
 import 'package:pata/features/pets/presentation/screens/pet_list_screen.dart';
 
-/// Define todas as rotas do aplicativo em um único lugar.
+const List<String> _authRoutes = <String>[
+  '/login',
+  '/register',
+  '/forgot-password'
+];
+
+/// Monta a configuração de rotas do app.
 ///
-/// Mantido como classe utilitária com um único membro estático
-/// ([router]) para que `app.dart` e testes possam importar a
-/// configuração sem precisar instanciá-la.
-abstract final class AppRouter {
-  static final GoRouter router = GoRouter(
+/// É uma função (não mais um `GoRouter` estático) porque a lógica de
+/// redirect precisa consultar o [authProvider] em tempo real, e o
+/// router também precisa ouvi-lo (`refreshListenable`) para reagir
+/// automaticamente a login/logout, sem navegação manual nas telas.
+GoRouter buildAppRouter(AuthProvider authProvider) {
+  return GoRouter(
     initialLocation: '/onboarding',
+    refreshListenable: authProvider,
+    redirect: (context, state) {
+      final String location = state.matchedLocation;
+
+      // Onboarding é livre — não depende de autenticação.
+      if (location == '/onboarding') return null;
+
+      final bool loggedIn = authProvider.isAuthenticated;
+      final bool onAuthRoute = _authRoutes.contains(location);
+
+      // Não autenticado tentando acessar área protegida -> manda pro login.
+      if (!loggedIn && !onAuthRoute) return '/login';
+
+      // Já autenticado, mas preso numa tela de login/cadastro -> manda
+      // pra área interna (evita ficar "preso" na tela de login).
+      if (loggedIn && onAuthRoute) return '/';
+
+      return null;
+    },
     routes: <RouteBase>[
       GoRoute(
         path: '/onboarding',
         name: 'onboarding',
         builder: (context, state) => const OnboardingScreen(),
+      ),
+      GoRoute(
+        path: '/login',
+        name: 'login',
+        builder: (context, state) => const LoginScreen(),
+      ),
+      GoRoute(
+        path: '/register',
+        name: 'register',
+        builder: (context, state) => const RegisterScreen(),
+      ),
+      GoRoute(
+        path: '/forgot-password',
+        name: 'forgot-password',
+        builder: (context, state) => const ForgotPasswordScreen(),
       ),
       GoRoute(
         path: '/',
