@@ -1,0 +1,41 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Dono da subcoleção: UID da sessão == UID no caminho do documento.
+    function isOwner(userId) {
+      return request.auth != null && request.auth.uid == userId;
+    }
+
+    // Validação do formato do pet (dados inválidos são recusados no servidor).
+    function isValidPet(data) {
+      return data.keys().hasOnly([
+               'name', 'species', 'sex', 'breed', 'birthDate', 'weightKg',
+               'vaccinationStatus', 'notes', 'createdAt', 'updatedAt'
+             ])
+          && data.keys().hasAll([
+               'name', 'species', 'sex', 'breed', 'birthDate', 'weightKg',
+               'vaccinationStatus', 'notes'
+             ])
+          && data.name is string
+          && data.name.size() > 0 && data.name.size() <= 100
+          && data.species in ['dog', 'cat']
+          && data.sex in ['male', 'female']
+          && data.breed is string
+          && data.breed.size() > 0 && data.breed.size() <= 100
+          && data.birthDate is timestamp
+          && data.weightKg is number && data.weightKg > 0
+          && data.vaccinationStatus in ['upToDate', 'notStarted', 'partiallyStarted']
+          && data.notes is string && data.notes.size() <= 1000;
+    }
+
+    // Pets de cada usuário: users/{uid}/pets/{petId}
+    match /users/{userId}/pets/{petId} {
+      allow read, delete: if isOwner(userId);
+      allow create, update: if isOwner(userId) && isValidPet(request.resource.data);
+    }
+
+    // Qualquer outro caminho: negado por padrão (nenhuma regra = sem acesso).
+  }
+}
