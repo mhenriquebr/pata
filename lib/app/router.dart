@@ -11,15 +11,10 @@ import 'package:pata/features/pets/presentation/screens/pet_list_screen.dart';
 const List<String> _authRoutes = <String>[
   '/login',
   '/register',
-  '/forgot-password'
+  '/forgot-password',
 ];
 
-/// Monta a configuração de rotas do app.
-///
-/// É uma função (não mais um `GoRouter` estático) porque a lógica de
-/// redirect precisa consultar o [authProvider] em tempo real, e o
-/// router também precisa ouvi-lo (`refreshListenable`) para reagir
-/// automaticamente a login/logout, sem navegação manual nas telas.
+/// Monta a configuração de rotas do app, com redirect por autenticação.
 GoRouter buildAppRouter(AuthProvider authProvider) {
   return GoRouter(
     initialLocation: '/onboarding',
@@ -27,17 +22,12 @@ GoRouter buildAppRouter(AuthProvider authProvider) {
     redirect: (context, state) {
       final String location = state.matchedLocation;
 
-      // Onboarding é livre — não depende de autenticação.
       if (location == '/onboarding') return null;
 
       final bool loggedIn = authProvider.isAuthenticated;
       final bool onAuthRoute = _authRoutes.contains(location);
 
-      // Não autenticado tentando acessar área protegida -> manda pro login.
       if (!loggedIn && !onAuthRoute) return '/login';
-
-      // Já autenticado, mas preso numa tela de login/cadastro -> manda
-      // pra área interna (evita ficar "preso" na tela de login).
       if (loggedIn && onAuthRoute) return '/';
 
       return null;
@@ -79,6 +69,14 @@ GoRouter buildAppRouter(AuthProvider authProvider) {
             builder: (context, state) {
               final String id = state.pathParameters['id']!;
               return PetDetailScreen(petId: id);
+            },
+          ),
+          GoRoute(
+            path: 'pets/:id/edit',
+            name: 'pet-edit',
+            builder: (context, state) {
+              final String id = state.pathParameters['id']!;
+              return PetFormScreen(petId: id);
             },
           ),
         ],

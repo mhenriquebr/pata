@@ -2,15 +2,22 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:pata/core/widgets/app_snackbar.dart';
+import 'package:pata/core/widgets/empty_state.dart';
+import 'package:pata/features/pets/domain/entities/pet.dart';
 import 'package:pata/features/pets/domain/entities/pet_sex.dart';
 import 'package:pata/features/pets/domain/entities/pet_species.dart';
 import 'package:pata/features/pets/domain/entities/vaccination_status.dart';
 import 'package:pata/features/pets/presentation/providers/pet_provider.dart';
 import 'package:provider/provider.dart';
 
-/// Tela de cadastro de um novo pet.
+/// Formulário de pet: cria um novo (sem [petId]) ou edita um existente
+/// (com [petId]). Os dados são gravados no Firestore pelo [PetProvider].
 class PetFormScreen extends StatefulWidget {
-  const PetFormScreen({super.key});
+  const PetFormScreen({this.petId, super.key});
+
+  final String? petId;
+
+  bool get isEditing => petId != null;
 
   @override
   State<PetFormScreen> createState() => _PetFormScreenState();
@@ -31,6 +38,11 @@ class _PetFormScreenState extends State<PetFormScreen> {
   DateTime? _birthDate;
   bool _isSubmitting = false;
 
+  /// No modo edição, indica que os campos já foram preenchidos com os
+  /// dados do pet (feito uma única vez, para não sobrescrever o que o
+  /// usuário digitar quando o Firestore enviar novas atualizações).
+  bool _loadedExisting = false;
+
   @override
   void dispose() {
     _nameController.dispose();
@@ -38,6 +50,17 @@ class _PetFormScreenState extends State<PetFormScreen> {
     _weightController.dispose();
     _notesController.dispose();
     super.dispose();
+  }
+
+  void _fillFrom(Pet pet) {
+    _nameController.text = pet.name;
+    _breedController.text = pet.breed;
+    _weightController.text = pet.weightKg.toString();
+    _notesController.text = pet.notes;
+    _species = pet.species;
+    _sex = pet.sex;
+    _vaccinationStatus = pet.vaccinationStatus;
+    _birthDate = pet.birthDate;
   }
 
   Future<void> _pickBirthDate() async {
@@ -70,38 +93,80 @@ class _PetFormScreenState extends State<PetFormScreen> {
       _weightController.text.trim().replaceAll(',', '.'),
     );
 
-    final bool success = await provider.addPet(
-      name: _nameController.text,
-      species: _species,
-      sex: _sex,
-      breed: _breedController.text,
-      birthDate: _birthDate!,
-      weightKg: weight,
-      vaccinationStatus: _vaccinationStatus,
-      notes: _notesController.text,
-    );
+    final bool success = widget.isEditing
+        ? await provider.updatePet(
+            id: widget.petId!,
+            name: _nameController.text,
+            species: _species,
+            sex: _sex,
+            breed: _breedController.text,
+            birthDate: _birthDate!,
+            weightKg: weight,
+            vaccinationStatus: _vaccinationStatus,
+            notes: _notesController.text,
+          )
+        : await provider.addPet(
+            name: _nameController.text,
+            species: _species,
+            sex: _sex,
+            breed: _breedController.text,
+            birthDate: _birthDate!,
+            weightKg: weight,
+            vaccinationStatus: _vaccinationStatus,
+            notes: _notesController.text,
+          );
 
     if (!mounted) return;
     setState(() => _isSubmitting = false);
 
     if (success) {
-      AppSnackbar.showSuccess(context, 'Pet cadastrado com sucesso!');
+      AppSnackbar.showSuccess(
+        context,
+        widget.isEditing
+            ? 'Pet atualizado com sucesso!'
+            : 'Pet cadastrado com sucesso!',
+      );
       context.pop();
     } else {
       AppSnackbar.showError(
         context,
-        provider.errorMessage ?? 'Não foi possível cadastrar o pet.',
+        provider.errorMessage ?? 'Não foi possível salvar o pet.',
       );
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final PetProvider provider = context.watch<PetProvider>();
+    final String title = widget.isEditing ? 'Editar pet' : 'Novo pet';
+
+    if (widget.isEditing && !_loadedExisting) {
+      final Pet? existing = provider.petById(widget.petId!);
+      if (existing != null) {
+        _fillFrom(existing);
+        _loadedExisting = true;
+      } else if (provider.isLoading) {
+        return Scaffold(
+          appBar: AppBar(title: Text(title)),
+          body: const Center(child: CircularProgressIndicator()),
+        );
+      } else {
+        return Scaffold(
+          appBar: AppBar(title: Text(title)),
+          body: const EmptyState(
+            icon: Icons.search_off,
+            title: 'Pet não encontrado',
+            message: 'Ele pode ter sido removido.',
+          ),
+        );
+      }
+    }
+
     final TextTheme textTheme = Theme.of(context).textTheme;
     final ColorScheme colorScheme = Theme.of(context).colorScheme;
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Novo pet')),
+      appBar: AppBar(title: Text(title)),
       body: Form(
         key: _formKey,
         child: ListView(
@@ -152,8 +217,7 @@ class _PetFormScreenState extends State<PetFormScreen> {
                     (PetSex sex) => ButtonSegment<PetSex>(
                       value: sex,
                       label: Text(sex.label),
-                      icon:
-                          Icon(sex == PetSex.male ? Icons.male : Icons.female),
+                      icon: Icon(sex == PetSex.male ? Icons.male : Icons.female),
                     ),
                   )
                   .toList(),
@@ -253,7 +317,11 @@ class _PetFormScreenState extends State<PetFormScreen> {
                       child: CircularProgressIndicator(strokeWidth: 2),
                     )
                   : const Icon(Icons.save_outlined),
-              label: Text(_isSubmitting ? 'Salvando...' : 'Salvar pet'),
+              label: Text(
+                _isSubmitting
+                    ? 'Salvando...'
+                    : (widget.isEditing ? 'Salvar alterações' : 'Salvar pet'),
+              ),
             ),
           ],
         ),

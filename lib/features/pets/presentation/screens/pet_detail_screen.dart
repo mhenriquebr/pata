@@ -9,7 +9,7 @@ import 'package:pata/features/pets/presentation/widgets/sex_icon.dart';
 import 'package:pata/features/pets/presentation/widgets/species_icon.dart';
 import 'package:provider/provider.dart';
 
-/// Tela de detalhes de um pet específico, identificado por [petId].
+/// Detalhes de um pet, com ações de editar e excluir (com confirmação).
 class PetDetailScreen extends StatelessWidget {
   const PetDetailScreen({required this.petId, super.key});
 
@@ -23,11 +23,12 @@ class PetDetailScreen extends StatelessWidget {
       appBar: AppBar(title: const Text('Detalhes do pet')),
       body: Consumer<PetProvider>(
         builder: (BuildContext context, PetProvider provider, _) {
-          final Pet? pet = provider.pets
-              .cast<Pet?>()
-              .firstWhere((Pet? p) => p?.id == petId, orElse: () => null);
+          final Pet? pet = provider.petById(petId);
 
           if (pet == null) {
+            if (provider.isLoading) {
+              return const Center(child: CircularProgressIndicator());
+            }
             return const EmptyState(
               icon: Icons.search_off,
               title: 'Pet não encontrado',
@@ -96,6 +97,12 @@ class PetDetailScreen extends StatelessWidget {
                   value: pet.notes,
                 ),
               const SizedBox(height: 24),
+              ElevatedButton.icon(
+                onPressed: () => context.push('/pets/${pet.id}/edit'),
+                icon: const Icon(Icons.edit_outlined),
+                label: const Text('Editar pet'),
+              ),
+              const SizedBox(height: 12),
               OutlinedButton.icon(
                 style: OutlinedButton.styleFrom(
                   foregroundColor: Theme.of(context).colorScheme.error,

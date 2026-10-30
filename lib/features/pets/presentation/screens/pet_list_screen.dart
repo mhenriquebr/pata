@@ -2,17 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pata/core/widgets/empty_state.dart';
 import 'package:pata/features/auth/presentation/providers/auth_provider.dart';
+import 'package:pata/features/pets/domain/entities/pet.dart';
 import 'package:pata/features/pets/presentation/providers/pet_provider.dart';
 import 'package:pata/features/pets/presentation/widgets/pet_card.dart';
 import 'package:provider/provider.dart';
 
-/// Tela inicial da área autenticada: lista todos os pets cadastrados.
-///
-/// StatelessWidget — todo o estado (lista, loading, erro) vem do
-/// [PetProvider]. O menu de conta/logout lê o [AuthProvider], mas a
-/// ação de sair em si (`signOut`) é só delegada — quem decide para
-/// onde navegar depois é o redirect do go_router, ao detectar que o
-/// usuário deixou de estar autenticado.
+/// Tela inicial da área autenticada: lista os pets DA CONTA logada,
+/// em tempo real (Stream do Firestore), com loading, estado vazio e
+/// tratamento de erro.
 class PetListScreen extends StatelessWidget {
   const PetListScreen({super.key});
 
@@ -55,41 +52,60 @@ class PetListScreen extends StatelessWidget {
       ),
       body: Consumer<PetProvider>(
         builder: (BuildContext context, PetProvider provider, _) {
-          if (provider.isLoading && provider.pets.isEmpty) {
+          if (provider.isLoading) {
             return const Center(child: CircularProgressIndicator());
           }
 
-          if (provider.pets.isEmpty) {
-            return RefreshIndicator(
-              onRefresh: provider.loadPets,
-              child: ListView(
-                physics: const AlwaysScrollableScrollPhysics(),
-                children: const <Widget>[
-                  SizedBox(height: 96),
+          if (provider.loadError != null && provider.pets.isEmpty) {
+            return Center(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: <Widget>[
                   EmptyState(
-                    icon: Icons.pets_outlined,
-                    title: 'Nenhum pet cadastrado ainda',
-                    message:
-                        'Toque no botão "+" para cadastrar o primeiro pet.',
+                    icon: Icons.cloud_off_outlined,
+                    title: 'Não foi possível carregar',
+                    message: provider.loadError!,
+                  ),
+                  FilledButton.icon(
+                    onPressed: provider.retry,
+                    icon: const Icon(Icons.refresh),
+                    label: const Text('Tentar novamente'),
                   ),
                 ],
               ),
             );
           }
 
-          return RefreshIndicator(
-            onRefresh: provider.loadPets,
-            child: ListView.builder(
-              padding: const EdgeInsets.only(top: 8, bottom: 88),
-              itemCount: provider.pets.length,
-              itemBuilder: (BuildContext context, int index) {
-                final pet = provider.pets[index];
-                return PetCard(
-                  pet: pet,
-                  onTap: () => context.push('/pets/${pet.id}'),
-                );
-              },
-            ),
+          if (provider.pets.isEmpty) {
+            return ListView(
+              children: <Widget>[
+                const SizedBox(height: 96),
+                const EmptyState(
+                  icon: Icons.pets_outlined,
+                  title: 'Nenhum pet cadastrado ainda',
+                  message: 'Os pets que você cadastrar aparecerão aqui.',
+                ),
+                Center(
+                  child: FilledButton.icon(
+                    onPressed: () => context.push('/pets/new'),
+                    icon: const Icon(Icons.add),
+                    label: const Text('Cadastrar primeiro pet'),
+                  ),
+                ),
+              ],
+            );
+          }
+
+          return ListView.builder(
+            padding: const EdgeInsets.only(top: 8, bottom: 88),
+            itemCount: provider.pets.length,
+            itemBuilder: (BuildContext context, int index) {
+              final Pet pet = provider.pets[index];
+              return PetCard(
+                pet: pet,
+                onTap: () => context.push('/pets/${pet.id}'),
+              );
+            },
           );
         },
       ),
