@@ -1,16 +1,13 @@
 import 'package:pata/features/pets/domain/entities/pet.dart';
 
-/// Contrato de acesso a dados da entidade [Pet].
+/// Contrato de acesso aos pets de UM usuário.
 ///
-/// A camada de apresentação depende apenas desta interface, nunca de
-/// uma implementação concreta (Dependency Inversion). Nesta etapa existe
-/// uma única implementação em memória ([InMemoryPetRepository]); no
-/// Trabalho 3, uma implementação baseada em Cloud Firestore poderá
-/// substituí-la sem que nenhuma tela precise ser alterada.
+/// O [userId] (UID da sessão autenticada) é sempre informado por quem
+/// chama — nunca digitado em tela. [watchAll] é um Stream: a lista se
+/// atualiza sozinha após cadastrar, editar ou excluir.
 abstract interface class PetRepository {
-  Future<List<Pet>> getAll();
-  Future<Pet?> getById(String id);
-  Future<void> add(Pet pet);
-  Future<void> update(Pet pet);
-  Future<void> delete(String id);
+  Stream<List<Pet>> watchAll(String userId);
+  Future<void> add(String userId, Pet pet);
+  Future<void> update(String userId, Pet pet);
+  Future<void> delete(String userId, String petId);
 }
